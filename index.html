@@ -132,7 +132,7 @@
         <!-- Mike's Card -->
         <div class="user-card">
             <h2 class="user-name">Mike</h2>
-            <button class="status-button" id="btn-mike" onclick="toggleStatus(this)">
+            <button class="status-button" id="btn-mike">
                 AFK
             </button>
         </div>
@@ -140,43 +140,76 @@
         <!-- Gre's Card -->
         <div class="user-card">
             <h2 class="user-name">Gre</h2>
-            <button class="status-button" id="btn-gre" onclick="toggleStatus(this)">
+            <button class="status-button" id="btn-gre">
                 AFK
             </button>
         </div>
     </div>
 
-    <script>
-        // Load state on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const buttons = ['btn-mike', 'btn-gre'];
-            buttons.forEach(id => {
-                const button = document.getElementById(id);
-                const savedState = localStorage.getItem(id);
-                if (savedState === 'working') {
-                    button.classList.add('working');
-                    button.textContent = "Working";
-                }
-            });
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        // TODO: Replace with your project's config object from Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyDLynltZVkl36ZZTWv4r1NpnnmMWtqfyfg",
+            authDomain: "manjiwip.firebaseapp.com",
+            databaseURL: "https://manjiwip-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "manjiwip",
+            storageBucket: "manjiwip.firebasestorage.app",
+            messagingSenderId: "213783015894",
+            appId: "1:213783015894:web:4113a05d7bdb2d52be7477",
+            measurementId: "G-31B0J3JEQT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // References to buttons
+        const btnMike = document.getElementById('btn-mike');
+        const btnGre = document.getElementById('btn-gre');
+
+        // Listen for changes on "status/mike"
+        const mikeRef = ref(db, 'status/mike');
+        onValue(mikeRef, (snapshot) => {
+            const data = snapshot.val();
+            updateButtonUI(btnMike, data === 'working');
         });
 
-        function toggleStatus(button) {
-            // Toggle the 'working' class
-            button.classList.toggle('working');
+        // Listen for changes on "status/gre"
+        const greRef = ref(db, 'status/gre');
+        onValue(greRef, (snapshot) => {
+            const data = snapshot.val();
+            updateButtonUI(btnGre, data === 'working');
+        });
 
-            // Determine new state
-            const isWorking = button.classList.contains('working');
-
-            // Update text based on state
+        // UI Update Helper
+        function updateButtonUI(button, isWorking) {
             if (isWorking) {
+                button.classList.add('working');
                 button.textContent = "Working";
             } else {
+                button.classList.remove('working');
                 button.textContent = "AFK";
             }
-
-            // Save to localStorage
-            localStorage.setItem(button.id, isWorking ? 'working' : 'afk');
         }
+
+        // Add Click Listeners
+        function setupClickListener(button, dbRef) {
+            button.addEventListener('click', () => {
+                const isWorking = button.classList.contains('working');
+                // If currently working, switch to 'afk'. If afk, switch to 'working'.
+                const newState = isWorking ? 'afk' : 'working';
+                set(dbRef, newState);
+            });
+        }
+
+        setupClickListener(btnMike, mikeRef);
+        setupClickListener(btnGre, greRef);
+
     </script>
 
 </body>
