@@ -182,9 +182,9 @@
             lastTouchEnd = now;
         }, { passive: false });
 
-        // Prevent Pinch Zoom
+        // Prevent Pinch Zoom (Allow Scroll)
         document.addEventListener('touchmove', (event) => {
-            if (event.scale !== 1) {
+            if (event.touches.length > 1) {
                 event.preventDefault();
             }
         }, { passive: false });
