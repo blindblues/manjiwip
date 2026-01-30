@@ -257,7 +257,12 @@
         // Sound Effect Helper (Web Audio API)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
+        let lastSoundTime = 0;
         function playSound(type) {
+            const now = Date.now();
+            if (now - lastSoundTime < 100) return; // Debounce 100ms
+            lastSoundTime = now;
+
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
