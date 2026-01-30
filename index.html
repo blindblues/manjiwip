@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manji WIP</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --btn-default: #3a3a3a;
+            --btn-working: #00c853;
+            /* Vibrant Green */
+            --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.3);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-primary);
+            padding-top: 15vh;
+            /* Push content down */
+            box-sizing: border-box;
+        }
+
+        .container {
+            display: flex;
+            gap: 3rem;
+            padding: 2rem;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            width: 220px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .user-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
+        .status-button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            /* Circular button */
+            font-size: 1.25rem;
+            font-weight: 700;
+            background-color: var(--btn-default);
+            color: var(--text-primary);
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-button:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+
+        .status-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Active State (Working) */
+        .status-button.working {
+            background-color: var(--btn-working);
+            box-shadow: 0 0 20px rgba(0, 200, 83, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .site-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 4rem;
+            /* Space between logo and cards */
+            z-index: 10;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <img src="LogoWhite.svg" alt="Logo" class="site-logo">
+
+    <div class="container">
+        <!-- Mike's Card -->
+        <div class="user-card">
+            <h2 class="user-name">Mike</h2>
+            <button class="status-button" id="btn-mike" onclick="toggleStatus(this)">
+                AFK
+            </button>
+        </div>
+
+        <!-- Gre's Card -->
+        <div class="user-card">
+            <h2 class="user-name">Gre</h2>
+            <button class="status-button" id="btn-gre" onclick="toggleStatus(this)">
+                AFK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Load state on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = ['btn-mike', 'btn-gre'];
+            buttons.forEach(id => {
+                const button = document.getElementById(id);
+                const savedState = localStorage.getItem(id);
+                if (savedState === 'working') {
+                    button.classList.add('working');
+                    button.textContent = "Working";
+                }
+            });
+        });
+
+        function toggleStatus(button) {
+            // Toggle the 'working' class
+            button.classList.toggle('working');
+
+            // Determine new state
+            const isWorking = button.classList.contains('working');
+
+            // Update text based on state
+            if (isWorking) {
+                button.textContent = "Working";
+            } else {
+                button.textContent = "AFK";
+            }
+
+            // Save to localStorage
+            localStorage.setItem(button.id, isWorking ? 'working' : 'afk');
+        }
+    </script>
+
+</body>
+
+</html>
