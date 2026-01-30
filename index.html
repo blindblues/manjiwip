@@ -41,6 +41,19 @@
             display: flex;
             gap: 3rem;
             padding: 2rem;
+            touch-action: manipulation;
+            /* Improves touch response and disables double-tap zoom */
+        }
+
+        /* Prevent zooming on iOS */
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+
+            select:focus,
+            textarea:focus,
+            input:focus {
+                font-size: 16px;
+                background: #eee;
+            }
         }
 
         .user-card {
@@ -156,6 +169,26 @@
             </button>
         </div>
     </div>
+
+    <!-- Prevent Mobile Zoom Script -->
+    <script>
+        // Prevent Double Tap Zoom
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (event) => {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+        // Prevent Pinch Zoom
+        document.addEventListener('touchmove', (event) => {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    </script>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
