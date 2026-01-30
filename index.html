@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Manji WIP</title>
     <style>
         :root {
@@ -185,15 +185,27 @@
 
         // Listen for changes on "status/mike"
         const mikeRef = ref(db, 'status/mike');
+        let lastMikeState = null;
         onValue(mikeRef, (snapshot) => {
             const data = snapshot.val();
+            if (lastMikeState !== null && lastMikeState !== data) {
+                if (data === 'working') playSound('activate');
+                else playSound('deactivate');
+            }
+            lastMikeState = data;
             updateButtonUI(btnMike, data === 'working');
         });
 
         // Listen for changes on "status/gre"
         const greRef = ref(db, 'status/gre');
+        let lastGreState = null;
         onValue(greRef, (snapshot) => {
             const data = snapshot.val();
+            if (lastGreState !== null && lastGreState !== data) {
+                if (data === 'working') playSound('activate');
+                else playSound('deactivate');
+            }
+            lastGreState = data;
             updateButtonUI(btnGre, data === 'working');
         });
 
@@ -205,6 +217,46 @@
             } else {
                 button.classList.remove('working');
                 button.textContent = "AFK";
+            }
+        }
+
+
+        // Sound Effect Helper (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'activate') {
+                // Happy, high-pitched ascending sound (success)
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'deactivate') {
+                // Lower-pitched descending sound (power down)
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.15);
+
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.15);
             }
         }
 
